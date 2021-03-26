@@ -1,38 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import { NotFound } from '../../pages/NotFound';
+
+import s from './News.module.scss';
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
 News.protoTypes = {
   flokkur: PropTypes.string,
+  fjoldiFretta: PropTypes.number,
+  isHomePage: PropTypes.boolean,
 }
 
-export function News({ flokkur }) {
+export function News({ flokkur, fjoldiFretta, isHomePage = true }) {
   // TODO sækja fréttir fyrir flokk
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
-  
+
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
       setError(null);
 
       let json;
-
       const url = `${apiUrl}${flokkur}`;
 
       try {
         const result = await fetch(url);
-        console.log('result :>> ', result);
+
         if (!result.ok) {
           console.error('result not ok');
+          throw new Error(result.status);
         }
 
         json = await result.json();
-        console.log('json :>> ', json);
       } catch (e) {
-        setError('Gat ekki sótt gögn');
+        setError(`Gat ekki sótt fréttir: ${e.message}`);
         return;
       } finally {
         setLoading(false);
@@ -41,11 +46,19 @@ export function News({ flokkur }) {
       setData(json);
     }
     fetchData();
-  }, [flokkur]);
+  }, [flokkur, fjoldiFretta]);
   
   if (error) {
+    if (error.includes('404')) {
+      return (
+        <>
+          <NotFound />
+        </>
+      );
+    }
+
     return (
-      <p>Villa kom upp: {error}</p>
+      <p>{error}</p>
     );
   }
 
@@ -55,14 +68,18 @@ export function News({ flokkur }) {
     );
   }
 
-  return (
-    <div>
-      <h1>{data.title}</h1>
-      {data.items.map((i) => {
+  const linkText = isHomePage ? 'Allar fréttir' : 'Til baka';
+
+  return ( data &&
+    <div className={s.flokkur}>
+      <h2>{data.title}</h2>
+      {data.items.slice(0, fjoldiFretta).map((i, index) => {
         return (
-          <p>{i.title}</p>
-        )
-      })}
+            <a key={index} href={i.link}><p>{i.title}</p></a>
+            )
+          })}
+          <br/>
+          <Link to={isHomePage ? flokkur : "/"}>{linkText}</Link>
     </div>
   );
 }

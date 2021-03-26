@@ -12,6 +12,10 @@ export function Layout({ title = 'RÚV Fréttir', children }) {
       <main className={s.layout__main}>
         {children}
       </main>
+      <hr/>
+      <footer>
+        <p>Fréttir frá <a href="http://ruv.is">RÚV</a></p>
+      </footer>
     </div>
   );
 }

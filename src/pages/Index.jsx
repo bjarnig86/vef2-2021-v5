@@ -1,14 +1,12 @@
 import React from 'react';
 
-import { News } from '../components/news/News';
+import { NewsList } from '../components/news-list/NewsList';
 
 export function Index() {
   // TODO útfæra yfirlitssíðu
   return (
     <>
-      <News flokkur = {'allar'} />
-      <News flokkur = {'innlent'} />
-      <News flokkur = {'erlent'} />
+      <NewsList />
     </>
   )
 }
